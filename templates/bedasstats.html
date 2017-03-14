@@ -1,0 +1,112 @@
+<html>
+<head>
+<style>
+tr:nth-child(even) {background: #CCC}
+tr:nth-child(odd) {background: #FFF}
+td {min-width: 50px; text-align: center}
+th {background: #EDE; text-align: center}
+</style>
+<meta charset="UTF-8">
+<title>B3dminton statz</title>
+</head>
+<body>
+
+<p align="center">
+{% for player in df2.columns %}
+<a href=players/{{player}}.html>{{player}}</a>
+{% endfor %}
+</p>
+
+<p align="center">Uhrada za {{last_date}} = <b>{{'%.2f' % cost}} EUR</b> (na cislo uctu SK0000000000000000000000). dakujem ʘ‿ʘ</p>
+
+<p align="center"><a href=howtoread.html>How to read the player2player tables/Ako citat tabulky hrac proti hracovi</a></p>
+
+<h1>Total stats (Celkove statistiky)</h1>
+<h2>Total matches played - top 10</h2>
+<h3>Odohrate zapasy - top 10</h3>
+{{ r(total_matches_count.head(10)) | safe }}
+<h2>Total wins - top 10</h2>
+<h3>Vyhry - top 10</h3>
+{{ r(total_win_count.head(10)) | safe }}
+<h2>Total losses - top 10</h2>
+<h3>Prehry - top 10</h3>
+{{ r(total_losses_count.head(10)) | safe }}
+<h2>Total winning percentage<br/>(wins/total matches)</h2>
+<h3>Pomer vyhier ku poctu odohratych zapasov</h3>
+{{ r(total_winning_percentage, series_label='%') | safe }}
+<h2>Top winning percentage by months (only stable players)</h2>
+<h3>Pomer vyhier ku poctu odohratych zapasov (aspon 2 ucasti v mesiaci)</h3>
+{{ r(winmatch_ratio_by_months_stable) | safe }}
+<h2>Matches played by weeks</h2>
+<h3>Odohrane zapasy po tyzdnoch</h3>
+{{ r(total_matches_by_weeks) | safe }}
+<h2>Win and loss count</h2>
+<h3>Vyhry a prehry</h3>
+{{ r(wl) | safe }}
+<h2>Wins by 2 points difference</h2>
+<h3>Vyhry najtesnejsim rozdielom</h3>
+{{ r(close_wins) | safe }}
+<h2>Losses by 2 points difference</h2>
+<h3>Prehry najtesnejsim rozdielom</h3>
+{{ r(close_losses) | safe }}
+<h2>Earned game points total</h2>
+<h3>Ziskane body v hre celkom</h3>
+{{ r(game_points_total) | safe }}
+<h2>Encounters</h2>
+<h3>Vzajomne zapasy</h3>
+{{ r(encounters) | safe }}
+<h2>Max points scored against opponent in a single match</h2>
+<h3>Maximum bodov uhranych proti superovi v jednom zapase</h3>
+{{ r(max_points_scored_vs_opponent) | safe }}
+<h2>Average points scored against opponent in a single match</h2>
+<h3>Priemer bodov uhranych proti superovi v jednom zapase</h3>
+{{ r(avg_points_scored_vs_opponent) | safe }}
+
+<h2>Average points scored in a match</h2>
+<h3>Priemer bodov na zapas</h3>
+{{ r(df_avg_points_per_match) | safe }}
+
+
+<h2>Scored vs opponent points</h2>
+<h3>Nahrate body vs body venovane superom</h3>
+{{ r(scored_vs_opponent_points) | safe }}
+
+<h2>Ucast po tyzdnoch a suma uhrady</h2>
+<h3>Attendance by weeks and price per player</h3>
+{{ r(df_courts_attendance) | safe }}
+
+
+<h1>Weekly stats (Prehlad po tyzdnoch)</h1>
+<h2>Earned game points by weeks</h2>
+<h3>Ziskane body v hre po tyzdnoch</h3>
+{{ r(game_points_weeks) | safe }}
+
+<a href=gp_by_months_8.png><img alt=gp_by_months8 src=gp_by_months_8.png style="width: 30%"></a>
+<h2>Winning percentage by weeks</h2>
+<h3>Pomer vyhier ku poctu zapasov po tyzdnoch</h3>
+{{ r(winmatch_ratio_by_weeks) | safe }}
+
+<h2>Played matches by weeks</h2>
+<h3>Odohrate zapasy po tyzdnoch</h3>
+{{ r(matches_count_by_weeks) | safe }}
+
+<h2>Win count by weeks</h2>
+<h3>Vyhry po tyzdnoch</h3>
+{{ r(win_count_by_weeks) | safe }}
+
+<h1>Monthly stats (Prehlad po mesiacoch)</h1>
+<h2>Winning percentage by months</h2>
+<h3>Pomer vyhier ku poctu zapasov po mesiacoch (v grafe 8, resp. 12 hracov s najlepsou dochadzkou)</h3>
+{{ r(winmatch_ratio_by_months) | safe }}
+<a href=wp_by_months_8.png><img alt=wp_by_months8 src=wp_by_months_8.png style="float: left; width: 30%"></a>
+<a href=wp_by_months_12.png><img alt=wp_by_months12 src=wp_by_months_12.png style="float: left; width: 30%"></a>
+<p style="clear: both;">
+<h2>Played matches by months</h2>
+<h3>Odohrate zapasy po mesiacoch</h3>
+{{ r(matches_count_by_months) | safe }}
+<h2>Win count by months</h2>
+<h3>Vyhry po mesiacoch</h3>
+{{ r(win_count_by_months) | safe }}
+<a href=input_data.xlsx>input_data.xlsx</a>
+</body>
+</html>
