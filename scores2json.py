@@ -8,11 +8,16 @@ import json
 import re
 import sys
 import time
+from dialog import Dialog
 from subprocess import getoutput as _go
 
 player_names = []
 date = ''
 score_args = []
+
+d = Dialog()
+elements = []
+rownum = 1
 
 player2alias = {
     'žaneta': 'zanet',
@@ -27,12 +32,25 @@ def alias(player):
         return player
 
 
-player_names = _go('''curl -s https://freeshell.de/~jose1711/bedas_slavia2.pdf | \
-                 pdftotext - - | sort -u | grep -e '[a-z]' ''')
+def int_or_na(i):
+    try:
+        return int(i)
+    except ValueError:
+        return 0
 
-player_names = [x.lower() for x in player_names.splitlines()]
 
-detected_date = [x for x in player_names if 'badminton' in x][0]
+pdf_data = _go('''curl -s https://freeshell.de/~jose1711/bedas_slavia2.pdf | \
+                 pdftotext - -''')
+
+pdf_data = [x.lower() for x in pdf_data.splitlines()]
+
+player_names = set()
+for line in pdf_data:
+    if 'badminton' in line:
+        continue
+    player_names.update(re.findall(r'[^ ]+', line))
+
+detected_date = [x for x in pdf_data if 'badminton' in x][0]
 pattern = re.compile(r'.* (?P<year>20[0-9]{2}) \((?P<day>..)\.(?P<month>..)\.\)')
 match = pattern.match(detected_date)
 day, month, year = [match.group(x) for x in ('day', 'month', 'year')]
@@ -86,25 +104,35 @@ for column_ix in range(0, len(player_names)):
         counter += 1
         first = player_names[column_ix]
         second = player_names[row_ix]
-        while True:
-            try:
-                score = int(score_args.__next__())
-                break
-            except:
-                pass
+        elements.append(tuple(('{} - {}'.format(first, second),
+                               rownum,
+                               1,
+                               '',
+                               rownum,
+                               20,
+                               5,
+                               22)))
+        rownum += 1
 
-            try:
-                score = input('({0}/{1}) {2} vs {3}: '.format(counter,
-                                                              total,
-                                                              first,
-                                                              second))
-                if not score:
-                    score = 0
-                score = int(score)
-                break
-            except ValueError:
-                print('Invalid input: {}'.format(score))
-                pass
+
+result = d.form('Scores', elements=elements, height=30, width=70, form_height=30)
+if result[0] not in 'ok':
+    print('Cancelled')
+    sys.exit(1)
+
+it = iter([int_or_na(x) for x in result[1]])
+for column_ix in range(0, len(player_names)):
+    for row_ix in range(column_ix, len(player_names)):
+        if column_ix == row_ix:
+            continue
+        counter += 1
+        first = player_names[column_ix]
+        second = player_names[row_ix]
+
+        try:
+            score = it.__next__()
+        except StopIteration:
+            continue
 
         if score == 0:
             print('No match data, skipping')
