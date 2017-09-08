@@ -21,7 +21,9 @@ rownum = 1
 
 player2alias = {
     'žaneta': 'zanet',
+    'žanet': 'zanet',
     'tomáš': 'tomas',
+    'kosťo': 'kosto',
 }
 
 
@@ -89,6 +91,7 @@ if len(player_names) < 2:
 index = pd.MultiIndex.from_tuples([(pd.to_datetime(date), x)
                                    for x in player_names])
 
+player_names.sort()
 print('Sorted player names: {}'.format(player_names))
 
 total = len(player_names) * (len(player_names) - 1)

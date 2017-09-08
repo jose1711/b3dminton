@@ -6,18 +6,43 @@ tr:nth-child(odd) {background: #FFF}
 td {min-width: 50px; text-align: center}
 th {background: #EDE; text-align: center}
 </style>
+<script>
+function en() {
+var h3 = document.getElementsByTagName("h3")
+var h2 = document.getElementsByTagName("h2")
+for (var i=0; i<h3.length; i++) {
+   h3[i].setAttribute("style", "display: none")
+	}
+for (var i=0; i<h2.length; i++) {
+   h2[i].setAttribute("style", "display: block")
+	}
+}
+
+function sk() {
+var h3 = document.getElementsByTagName("h3")
+var h2 = document.getElementsByTagName("h2")
+for (var i=0; i<h3.length; i++) {
+   h3[i].setAttribute("style", "display: block")
+	}
+for (var i=0; i<h2.length; i++) {
+   h2[i].setAttribute("style", "display: none")
+	}
+}
+</script>
 <meta charset="UTF-8">
 <title>B3dminton statz</title>
 </head>
 <body>
-
+<h1 align="center"><a href=bedas.html>B3ďas</a></h1>
+<input value="English" type="button" onclick=en()>
+<input value="Slovak" type="button" onclick=sk()>
 <p align="center">
 {% for player in df2.columns %}
 <a href=players/{{player}}.html>{{player}}</a>
 {% endfor %}
 </p>
 
-<p align="center">Uhrada za {{last_date}} = <b>{{'%.2f' % cost}} EUR</b> (na cislo uctu SK0000000000000000000000). dakujem ʘ‿ʘ</p>
+<p align="right">Posledná aktualizácia: {{last_date}}.</p>
 
 <p align="center"><a href=howtoread.html>How to read the player2player tables/Ako citat tabulky hrac proti hracovi</a></p>
 
@@ -71,8 +96,8 @@ th {background: #EDE; text-align: center}
 <h3>Nahrate body vs body venovane superom</h3>
 {{ r(scored_vs_opponent_points) | safe }}
 
-<h2>Ucast po tyzdnoch a suma uhrady</h2>
-<h3>Attendance by weeks and price per player</h3>
+<h2>Ucast po tyzdnoch</h2>
+<h3>Attendance by weeks</h3>
 {{ r(df_courts_attendance) | safe }}
 
 
@@ -81,7 +106,7 @@ th {background: #EDE; text-align: center}
 <h3>Ziskane body v hre po tyzdnoch</h3>
 {{ r(game_points_weeks) | safe }}
 
-<a href=gp_by_months_8.png><img alt=gp_by_months8 src=gp_by_months_8.png style="width: 30%"></a>
+<a href=gp_by_months_8.png><img alt=gp_by_months8 src=gp_by_months_8.png style="width: 80%"></a>
 <h2>Winning percentage by weeks</h2>
 <h3>Pomer vyhier ku poctu zapasov po tyzdnoch</h3>
 {{ r(winmatch_ratio_by_weeks) | safe }}
@@ -93,6 +118,11 @@ th {background: #EDE; text-align: center}
 <h2>Win count by weeks</h2>
 <h3>Vyhry po tyzdnoch</h3>
 {{ r(win_count_by_weeks) | safe }}
+
+<h2>Most (dis)balanced weeks</h2>
+<h3>Naj(ne)vyvazenejsie stretnutia</h3>
+Lower number indicates more balance (cim nizsie cislo, tym vyvazenejsia hra)
+{{ r(balance_by_weeks) | safe }}
 
 <h1>Monthly stats (Prehlad po mesiacoch)</h1>
 <h2>Winning percentage by months</h2>

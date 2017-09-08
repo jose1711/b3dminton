@@ -37,7 +37,11 @@ def do_graph(title,
              colors=cm.Dark2.colors,
              players=8,
              filename=None,
-             dataframe=None):
+             dataframe=None,
+             legend_loc='center left',
+             height=9.6,
+             width=12.8
+             ):
     """
     makes a graph from a dataframe. output is written into
     a filename (.png)
@@ -63,10 +67,12 @@ def do_graph(title,
 
     new_lines.append(gray)
     new_labels.append('others')
-    ax.legend(new_lines, new_labels, loc='upper right')
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.9, box.height])
+    ax.legend(new_lines, new_labels, loc=legend_loc, bbox_to_anchor=(1, 0.5))
     fig = ax.get_figure()
-    fig.set_figheight(9.6)
-    fig.set_figwidth(12.8)
+    fig.set_figheight(height)
+    fig.set_figwidth(width)
     fig.savefig(filename)
 
 
@@ -120,7 +126,9 @@ do_graph(title='Game points by weeks',
          colors=cm.Dark2.colors,
          players=8,
          filename='gp_by_months_8.png',
-         dataframe=game_points_weeks)
+         dataframe=game_points_weeks,
+         width=24)
+
 
 game_points_total = df2.apply(abs).sum().sort_values(ascending=False)
 # at least 2 visits in month
@@ -137,6 +145,9 @@ winmatch_ratio_by_months_stable = winmatch_ratio_by_months_stable.fillna(' ')
 matches_count_by_weeks = df2[df2.fillna(0) != 0].groupby(level=0).count()
 win_count_by_weeks = df2[df2 > 0].groupby(level=0).count()
 winmatch_ratio_by_weeks = (win_count_by_weeks * 100 / matches_count_by_weeks)
+
+# most (dis)balanced weeks (by standard deviation of players' percentage)
+balance_by_weeks = winmatch_ratio_by_weeks.transpose().std().sort_values().iloc[[0, -1]]
 
 do_graph(title='Winning percentage by month - first 8',
          colors=cm.Dark2.colors,
@@ -176,8 +187,9 @@ df_courts_attendance = pd.concat([court_count_by_weeks, attendance_by_weeks],
                                  axis=1)
 df_courts_attendance.columns = ['courts', 'players']
 
-costs = df_courts_attendance['courts'] * 11.7 / df_courts_attendance['players']
-df_courts_attendance['costs'] = costs
+# costs computation is fairly inaccurate - better disable it
+# costs = df_courts_attendance['courts'] * 11.7 / df_courts_attendance['players']
+# df_courts_attendance['costs'] = costs
 
 average_points_per_match = df2.apply(abs).mean()
 average_points_per_won_match = df2[df2 > 0].mean()
@@ -210,6 +222,7 @@ cost = 11.7 * 4 / last_number_players
 
 print(template_main.render(**locals()))
 
+# create directory structure for player vs player graphs + pages
 if not os.path.exists(os.path.join('/tmp', 'players')):
     os.mkdir(os.path.join('/tmp', 'players'))
 
@@ -218,10 +231,13 @@ for player in df2.columns:
 
 plt.cla()
 ax = plt.subplot()
-
+# player vs player graphs
 for player, opponent in permutations(df2.columns, 2):
     dfax = pd.concat([df2[player].loc[:, opponent],
                       df2[opponent].loc[:, player]], axis=1)
+    # skip if there hasn't been an encounter
+    if len(dfax.dropna()) == 0:
+        continue
     ax = dfax.plot(ax=ax, kind='bar', width=0.3,
                    title='{} vs {}'.format(player, opponent))
     ax.set_xticklabels([x.strftime('%W/%y') for x in dfax.index],
@@ -229,14 +245,14 @@ for player, opponent in permutations(df2.columns, 2):
                        fontsize='small')
     ax.set_ylim([-20, 20])
     ax.set_ylabel('- loss    + win')
-    ax.hlines(0, -15, 15)
-    ax.hlines(15, -15, 15, colors='red')
-    ax.hlines(-15, -15, 15, colors='red')
+    ax.hlines(0, -15, 24)
+    ax.hlines(15, -15, 24, colors='red')
+    ax.hlines(-15, -15, 24, colors='red')
     ax.figure.savefig('/tmp/players/{0}/{0}_vs_{1}.png'.format(player,
                                                                opponent))
     plt.cla()
 
-# generate player2player stats
+# player vs player html pages
 for player in df2.columns:
     with open('/tmp/players/{}.html'.format(player), 'w') as f:
         os.chdir('/tmp/players/{}'.format(player))
